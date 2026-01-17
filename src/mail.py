@@ -16,7 +16,7 @@ def send_mail(subject: str, verse: str, content: str):
     sender_encoded_name = Header(settings.sender_name, 'utf-8').encode()
     message['From'] = formataddr((sender_encoded_name, settings.sender_mail))
     message['To'] = settings.recvicer_mail
-    message['Cc'] = settings.sender_mail
+    message['Cc'] = settings.cc_mail
     message['Subject'] = Header(subject, 'utf-8')
 
     # HTML 模版 - 僅經文使用 Callout

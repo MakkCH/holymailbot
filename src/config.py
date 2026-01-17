@@ -22,6 +22,7 @@ class Settings(BaseSettings):
     # 寄件人與收件人真實姓名
     sender_real_name: str
     recvicer_real_name: str
+    cc_mail: str
     
     # OpenAI API 設置
     api_key: str
