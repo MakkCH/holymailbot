@@ -1,6 +1,16 @@
 import openai
-from typing import Dict
+from typing import Dict, TypedDict
 from .config import settings
+
+class TokenStats(TypedDict):
+    input_tokens: int
+    output_tokens: int
+
+# 全局變量用於計量 token
+_total_stats: TokenStats = {
+    "input_tokens": 0,
+    "output_tokens": 0
+}
 
 def get_llm_client() -> openai.OpenAI:
     """
@@ -39,6 +49,11 @@ def generate_reflection(verses_text: str) -> Dict[str, str]:
     
     full_text = response.choices[0].message.content
     
+    # 累加 token 使用量
+    if response.usage:
+        _total_stats["input_tokens"] += response.usage.prompt_tokens
+        _total_stats["output_tokens"] += response.usage.completion_tokens
+    
     # 解析標題、經文和內容
     title = "每日靈修"
     verse = ""
@@ -56,3 +71,9 @@ def generate_reflection(verses_text: str) -> Dict[str, str]:
             break
             
     return {"title": title, "verse": verse, "content": content}
+
+def get_token_stats() -> TokenStats:
+    """
+    獲取總計 token 使用量
+    """
+    return _total_stats

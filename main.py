@@ -1,7 +1,7 @@
 import asyncio
 import logging
 from src.bible import fetch_random_verses, format_verses_for_llm
-from src.llm import generate_reflection
+from src.llm import generate_reflection, get_token_stats
 from src.mail import send_mail
 from src.config import settings
 
@@ -34,5 +34,23 @@ async def main():
         logging.info(f"等待 {settings.interval_minutes} 分鐘後進行下一次發送...")
         await asyncio.sleep(settings.interval_minutes * 60)
 
+async def run():
+    try:
+        await main()
+    except KeyboardInterrupt:
+        logging.info("\n收到停止信號 (Ctrl-C)，正在退出...")
+    finally:
+        stats = get_token_stats()
+        print("\n" + "="*30)
+        print("📊 運行摘要 (Token 統計)")
+        print(f"輸入 Token: {stats['input_tokens']}")
+        print(f"輸出 Token: {stats['output_tokens']}")
+        print(f"總計 Token: {stats['input_tokens'] + stats['output_tokens']}")
+        print("="*30)
+        logging.info("服務已停止。")
+
 if __name__ == "__main__":
-    asyncio.run(main())
+    try:
+        asyncio.run(run())
+    except KeyboardInterrupt:
+        pass
